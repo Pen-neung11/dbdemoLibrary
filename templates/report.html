@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>รายงาน — Library System</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">📚 ระบบห้องสมุด <span>Library System</span></div>
+    <nav><a href="/">จัดการข้อมูล</a><a href="/report" class="active">รายงาน</a></nav>
+  </header>
+  <main class="container">
+    <section class="cards">
+      <div class="metric"><div class="metric-num" id="m_members">—</div><div class="metric-label">สมาชิก</div></div>
+      <div class="metric"><div class="metric-num" id="m_titles">—</div><div class="metric-label">ชื่อหนังสือ</div></div>
+      <div class="metric"><div class="metric-num" id="m_active">—</div><div class="metric-label">กำลังยืม</div></div>
+      <div class="metric warn"><div class="metric-num" id="m_overdue">—</div><div class="metric-label">ค้างคืน</div></div>
+    </section>
+    <section class="card">
+      <h3>📈 หนังสือยอดนิยม (Most Borrowed)</h3>
+      <div id="popularStatus" class="status"></div>
+      <div class="table-wrap"><table id="popularTable"><thead></thead><tbody></tbody></table></div>
+    </section>
+    <section class="card">
+      <h3>⏰ สมาชิกค้างคืน (Overdue)</h3>
+      <div id="overdueStatus" class="status"></div>
+      <div class="table-wrap"><table id="overdueTable"><thead></thead><tbody></tbody></table></div>
+    </section>
+    <section class="card">
+      <h3>🏅 สมาชิกที่ยืมมากกว่าค่าเฉลี่ย (Above Average)</h3>
+      <div id="activeStatus" class="status"></div>
+      <div class="table-wrap"><table id="activeTable"><thead></thead><tbody></tbody></table></div>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='report.js') }}"></script>
+</body>
+</html>
