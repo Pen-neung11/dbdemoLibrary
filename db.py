@@ -34,38 +34,51 @@ def _todo(name):
 
 # ---------- สมาชิก (member) ----------
 def search_members(filters):
-    """ค้นหา สมาชิก ตามเงื่อนไข (name, gender, member_type)
-    คำใบ้: เริ่มจาก sql = "SELECT * FROM member WHERE 1=1"
-    แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
-    # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
-    _todo("search_members")
+    sql = "SELECT * FROM member WHERE 1=1" 
+    params = [] # gjj
+    if filters.get("name"):
+        sql += " AND name LIKE %s"
+        params.append("%" + filters["name"] + "%")
+    if filters.get("gender"):
+        sql += " AND gender = %s"
+        params.append(filters["gender"])
+    if filters.get("member_type"):
+        sql += " AND member_type = %s"
+        params.append(filters["member_type"])
+    sql += " ORDER BY member_id"
+    return run_query(sql, params)
 
 
 
 
 def get_member(member_id):
-    """ดึง สมาชิก 1 รายการตาม member_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
-    # TODO: SELECT * FROM member WHERE member_id = %s แล้วคืนแถวเดียว
-   
-    _todo("get_member")
+    rows = run_query("SELECT * FROM member WHERE member_id = %s", (member_id,))
+    return rows[0] if rows else None
 
 
 def create_member(data):
     """เพิ่ม สมาชิก ใหม่ — data มีคีย์: name, gender, email, phone, member_type"""
-    # TODO: INSERT INTO member (...) VALUES (%s, ...)
-    _todo("create_member")
+    
+    sql = "INSERT INTO member (name, gender, email, phone, member_type) VALUES (%s, %s, %s, %s, %s)"
+    params = (data["name"], data["gender"], data["email"], data["phone"], data["member_type"])
+    return run_command(sql, params)
+
+
+
 
 
 def update_member(member_id, data):
     """แก้ไข สมาชิก ตาม member_id"""
-    # TODO: UPDATE member SET ... WHERE member_id=%s
-    _todo("update_member")
+    return run_command("UPDATE member SET name=%s, gender=%s, email=%s, "
+        "phone=%s, member_type=%s WHERE member_id=%s",
+        (data["name"], data["gender"], data["email"],
+         data["phone"], data["member_type"], member_id))
+    
 
 
 def delete_member(member_id):
     """ลบ สมาชิก ตาม member_id"""
-    # TODO: DELETE FROM member WHERE member_id=%s
-    _todo("delete_member")
+    return run_command("DELETE FROM member WHERE member_id=%s", (member_id,))
 
 # ---------- หนังสือ (book_title) ----------
 def search_books(filters):
