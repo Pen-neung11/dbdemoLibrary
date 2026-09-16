@@ -65,8 +65,6 @@ def create_member(data):
 
 
 
-
-
 def update_member(member_id, data):
     """แก้ไข สมาชิก ตาม member_id"""
     return run_command("UPDATE member SET name=%s, gender=%s, email=%s, "
@@ -80,45 +78,70 @@ def delete_member(member_id):
     """ลบ สมาชิก ตาม member_id"""
     return run_command("DELETE FROM member WHERE member_id=%s", (member_id,))
 
+
+
+
 # ---------- หนังสือ (book_title) ----------
 def search_books(filters):
-    """ค้นหา หนังสือ ตามเงื่อนไข (title, author, category)
-    คำใบ้: เริ่มจาก sql = "SELECT * FROM book_title WHERE 1=1"
-    แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
-    # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
-    _todo("search_books")
+    sql = ("SELECT t.title_id, t.title, t.author, t.category, "
+           "t.publish_year, COUNT(c.copy_id) AS copies "
+           "FROM book_title t "
+           "LEFT JOIN book_copy c ON t.title_id = c.title_id "
+           "WHERE 1=1")
+    
+    params = []
+    if filters.get("title"):
+        sql += " AND t.title LIKE %s"; params.append("%"+filters["title"]+"%")
+    sql += " GROUP BY t.title_id, t.title, t.author, t.category, t.publish_year"
+    return run_query(sql, params)
 
 
 def get_book(title_id):
     """ดึง หนังสือ 1 รายการตาม title_id (ใช้ตอนเปิดฟอร์มแก้ไข)"""
     # TODO: SELECT * FROM book_title WHERE title_id = %s แล้วคืนแถวเดียว
-    _todo("get_book")
+    rows = run_query("SELECT * FROM book_title WHERE title_id = %s", (title_id,))
+    return rows[0] if rows else None
+
+    
 
 
 def create_book(data):
     """เพิ่ม หนังสือ ใหม่ — data มีคีย์: title, author, category, publish_year"""
+    
+    sql = "INSERT INTO book_title (title, author, category, publish_year) VALUES (%s, %s, %s, %s)"
+    params = (data["title"], data["author"], data["category"], data["publish_year"])
+    return run_command(sql, params)
+
     # TODO: INSERT INTO book_title (...) VALUES (%s, ...)
-    _todo("create_book")
+    
 
 
 def update_book(title_id, data):
     """แก้ไข หนังสือ ตาม title_id"""
     # TODO: UPDATE book_title SET ... WHERE title_id=%s
-    _todo("update_book")
+    return run_command("UPDATE book_title SET title=%s, author=%s, category=%s, publish_year=%s WHERE title_id=%s",
+            (data["title"], data["author"], data["category"], data["publish_year"], title_id))
+
+    
 
 
 def delete_book(title_id):
     """ลบ หนังสือ ตาม title_id"""
     # TODO: DELETE FROM book_title WHERE title_id=%s
-    _todo("delete_book")
+    return run_command("DELETE FROM book_title WHERE title_id=%s", (title_id,))
+    
+    
 
 # ---------- การยืม (loan) ----------
 def search_loans(filters):
-    """ค้นหา การยืม ตามเงื่อนไข (member_id, copy_id)
-    คำใบ้: เริ่มจาก sql = "SELECT * FROM loan WHERE 1=1"
-    แล้วต่อเงื่อนไขเฉพาะ filter ที่มีค่า (ข้อความใช้ LIKE %s, อื่น ๆ ใช้ = %s)"""
-    # TODO: เขียน SQL ค้นหาแบบยืดหยุ่นตาม filters (ใช้ %s เสมอ)
-    _todo("search_loans")
+    sql = ("SELECT l.loan_id, m.name AS member_name, t.title, "
+           "l.loan_date, l.due_date, l.return_date "
+           "FROM loan l "
+           "INNER JOIN member m     ON l.member_id = m.member_id "
+           "INNER JOIN book_copy c  ON l.copy_id   = c.copy_id "
+           "INNER JOIN book_title t ON c.title_id  = t.title_id "
+           "WHERE 1=1 ORDER BY l.loan_id")
+    return run_query(sql, [])
 
 
 def get_loan(loan_id):
